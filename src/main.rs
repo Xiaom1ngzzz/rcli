@@ -1,11 +1,13 @@
-fn main() {
-    println!("Hello, world!");
-}
+// rcli csv -i input.csv -o output.json --header -d ','
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_basic() {
-        assert_eq!(2 + 2, 4);
+use clap::Parser;
+use rcli::{process_csv, Opts, SubCommand};
+
+fn main() -> anyhow::Result<()> {
+    let opts = Opts::parse();
+    match opts.cmd {
+        SubCommand::Csv(opts) => process_csv(&opts.input, &opts.output)?,
     }
+
+    Ok(())
 }
