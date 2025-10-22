@@ -38,7 +38,21 @@ jobs:
       - name: Lint rust sources
         run: cargo clippy --all-targets --all-features --tests --benches -- -D warnings
       - name: Execute rust tests
-        run: cargo nextest run --all-features
+        run: |
+          set +e
+          cargo nextest run --all-features
+          TEST_EXIT_CODE=$?
+
+          if [ $TEST_EXIT_CODE -eq 0 ]; then
+            echo "✅ Tests passed"
+            exit 0
+          elif [ $TEST_EXIT_CODE -eq 4 ]; then
+            echo "⚠️ Warning: No tests found, but continuing..."
+            exit 0
+          else
+            echo "❌ Tests failed with exit code $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
         id: git-cliff
